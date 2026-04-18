@@ -325,3 +325,65 @@
 }
 
 div.js-plotly-plot .plotly .modebar { background: transparent !important; }
+
+/* ─── FLOATING CHATBOT ───────────────────────────────────────── */
+#float-chat-wrap { position: fixed; bottom: 28px; right: 28px; z-index: 9999; }
+
+.float-chat-btn {
+  width: 58px; height: 58px; border-radius: 50%;
+  background: linear-gradient(135deg, #6c63ff, #e94560);
+  border: none; cursor: pointer; font-size: 26px;
+  box-shadow: 0 4px 28px rgba(108,99,255,0.55);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; transition: all 0.22s; outline: none;
+  font-family: inherit;
+}
+.float-chat-btn:hover { transform: scale(1.08); box-shadow: 0 6px 36px rgba(108,99,255,0.7); }
+
+.float-panel {
+  position: absolute; bottom: 70px; right: 0;
+  width: 360px;
+  background: var(--c-card);
+  border: 1px solid var(--c-border2);
+  border-radius: 18px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeUp 0.2s ease;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.float-panel-header {
+  padding: 13px 16px;
+  background: linear-gradient(135deg,rgba(108,99,255,0.12),rgba(233,69,96,0.08));
+  border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.float-close-btn {
+  background: none; border: none; color: var(--c-text2); font-size: 16px;
+  cursor: pointer; padding: 2px 6px; border-radius: 6px;
+  transition: all 0.15s; font-family: inherit; outline: none;
+}
+.float-close-btn:hover { color: var(--c-accent2); background: var(--c-card2); }
+
+.float-starters {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+.float-starters .sq-btn { font-size: 11px; padding: 4px 10px; }
+
+.float-messages {
+  flex: 1; overflow-y: auto; padding: 12px;
+  max-height: 280px;
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--c-card);
+}
+.float-messages .chat-bubble { max-width: 85%; font-size: 12.5px; }
+.float-messages .chat-avatar { width: 28px; height: 28px; font-size: 14px; border-radius: 7px; }
