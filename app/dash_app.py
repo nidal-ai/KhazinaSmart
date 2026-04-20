@@ -60,6 +60,8 @@ def _read_df(json_str):
         df = pd.read_json(io.StringIO(json_str), orient="split")
         if "date" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
+        if "Date" in df.columns:
+            df["Date"] = pd.to_datetime(df["Date"])
         return df
     except Exception:
         return None
@@ -508,7 +510,7 @@ def on_upload(contents, filename):
         if not test_preds.empty and "predicted" in test_preds.columns:
             ap = test_preds.rename(columns={
                 "sales":"Weekly_Sales", "predicted":"predicted_demand",
-                "store_id":"Store", "category":"Dept"})
+                "store_id":"Store", "category":"Dept", "date":"Date"})
             al = generate_alerts_dataframe(ap)
             alerts_json = al.to_json(orient="split", date_format="iso")
 
@@ -611,7 +613,12 @@ def update_overview(data_json, theme):
             html.Table([
                 html.Thead(html.Tr([html.Th(c.replace("_"," ").title()) for c in preview_cols])),
                 html.Tbody([
-                    html.Tr([html.Td(str(row[c])[:30]) for c in preview_cols])
+                    html.Tr([
+                        html.Td(
+                            row[c].strftime("%Y-%m-%d") if hasattr(row[c], "strftime")
+                            else str(row[c])[:30]
+                        ) for c in preview_cols
+                    ])
                     for _, row in preview_df.iterrows()
                 ]),
             ], className="data-table"),
@@ -765,9 +772,9 @@ def update_alerts(alerts_json, status_f, min_risk, theme):
                      className="risk-bar"),
         ], style={"display":"flex","alignItems":"center"})
 
-    cols = [c for c in ["Store","Dept","status","risk_score","action_needed"] if c in filt.columns]
+    cols = [c for c in ["Date","Store","Dept","status","risk_score","action_needed"] if c in filt.columns]
     if not cols:
-        cols = [c for c in ["store_id","category","status","risk_score","action_needed"] if c in filt.columns]
+        cols = [c for c in ["date","store_id","category","status","risk_score","action_needed"] if c in filt.columns]
 
     trows = []
     for _, row in filt.head(100).iterrows():
@@ -779,7 +786,14 @@ def update_alerts(alerts_json, status_f, min_risk, theme):
             elif c == "risk_score":
                 cells.append(html.Td(risk_bar(float(v))))
             else:
-                txt = str(v)[:55] if isinstance(v, str) else (f"{v:,.0f}" if isinstance(v,(int,float)) else str(v))
+                if c == "Date" and hasattr(v, "strftime"):
+                    txt = v.strftime("%Y-%m-%d")
+                elif isinstance(v, str):
+                    txt = v[:55]
+                elif isinstance(v, (int, float)):
+                    txt = f"{v:,.0f}"
+                else:
+                    txt = str(v)[:16]
                 cells.append(html.Td(txt))
         trows.append(html.Tr(cells))
 
@@ -826,7 +840,7 @@ def on_chat(n_send, sq_clicks, user_input, history, alerts_json):
         starters = get_starter_questions()
         idx = tid["index"]
         raw = starters[idx]
-        for tail in [" 🔴"," 📦"," 💰"," 🏪"," 📊"]:
+        for tail in [" 🔴"," 📦"," 💰"," 🏪"," 📊"," 📈"]:
             raw = raw.split(tail)[0]
         question = raw
 
